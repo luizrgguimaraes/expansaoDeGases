@@ -1,28 +1,3 @@
-class Coordenadas{
-    constructor(x,y){
-        this.setX(x);
-        this.setY(y);
-    }
-
-    clone(obj){
-        this.x = obj.x;
-        this.y = obj.y;
-    }
-    
-    soma(vetor){
-        this.x += vetor.x;
-        this.y += vetor.y;
-    }
-    
-    setX(n){
-        this.x = round2(n,5);
-    }
-    setY(n){
-        this.y = round2(n,5);
-    }
-}
-
-
 class Particulas{
     constructor(){
         this.array = Array();
@@ -51,249 +26,172 @@ class Particulas{
             for(var j=i+1; j < this.array.length;j++){
                 var obj1 = this.array[i];
                 var obj2 = this.array[j]; 
-                if(obj1.colisaoX(obj2)){
-                    obj1.reverterPosicao();
-                    obj2.reverterPosicao();
-                    
-                    //noLoop();
-                    Debug.print(["Colisao ",obj1.id,obj2.id]);
-                    
-                    var vax0 = obj1.vetor.x;
-                    var vbx0 = obj2.vetor.x; 
-                    var vay0 = obj1.vetor.y;
-                    var vby0 = obj2.vetor.y;
-                    
-                    var momentoInicialx = vax0 + vbx0;
-                    Debug.print(["antesx",vax0,vbx0]);
-                    var vaxf = calcularNovaVelocidadeA(vax0,vbx0);
-                    var vbxf = calcularNovaVelocidadeA(vbx0,vax0);
-                    
-                    var momentoInicialy = vay0 + vby0;
-                    Debug.print(["antesy",vay0,vby0]);
-                    var vayf = calcularNovaVelocidadeA(vay0,vby0);
-                    var vbyf = calcularNovaVelocidadeA(vby0,vay0);
-                    
-                    
-                    var momentoAtualx = 0;
-                    var momentoAtualy = 0;
-                    var settedX = false;
-                    var settedY = false;
-                    for(var m=0;m<=1;m++){
-                        for(var n=0;n<=1;n++){
-                            momentoAtualx = vaxf[m]+vbxf[n];
-                            
-                            if( (momentoAtualx == momentoInicialx) && (vax0 != vaxf[m]) && !settedX){
-                                Debug.print(["nova ConfiguracaoX",vaxf[m],vbxf[n]]);
-                                obj1.vetor.setX(vaxf[m]);
-                                obj2.vetor.setX(vbxf[n]);
-                                settedX = true;
-                            }
-                            
-                            momentoAtualy = vayf[m]+vbyf[n];
-                            
-                            if( (momentoAtualy == momentoInicialy) && (vay0 != vayf[m]) && !settedY ){
-                                Debug.print(["nova ConfiguracaoY",vayf[m],vbyf[n]]);
-                                obj1.vetor.setY(vayf[m]);
-                                obj2.vetor.setY(vbyf[n]);
-                                settedY = true;
-                            }
-                            
-                            if(settedX && settedY){
-                                obj1.mover();
-                                obj2.mover();
-                                break;
-                            }
-                            
-                        }
-                        if(settedX && settedY){
-                            break;
-                        }
-                    
-                        
-                    }
-                    
-                    
+
+                
+                if(!obj1.longe(obj2)){
+                    continue;
                 }
-            }
-        }
+               Debug.print(["Objetos Muito Perto",obj1.id,obj2.id]);
+
+
+                if(!obj1.sobreposicao(obj2)){
+                    continue;
+                }
+                Debug.print(["Objetos Sobrepostos",obj1.id,obj2.id]);
+                
+                
+                var resultX = Array();
+                var resultY = Array();
+                var resultZ = Array();
+                
+                var moduloA = calcModulo(obj1.vetor.x,obj1.vetor.y,obj1.vetor.z); 
+                var moduloB = calcModulo(obj2.vetor.x,obj2.vetor.y,obj2.vetor.z);
+                
+                var EcInicial = energiaCinetica(moduloA,moduloB,obj1.massa,obj2.massa);
+                var PTInicial = obj1.massa*moduloA+obj2.massa*moduloB;
+                
+                Debug.print(["Posicao Inicial","XA="+obj1.pos.x,"XB="+obj2.pos.x,"YA="+obj1.pos.y,"YB="+obj2.pos.y,"ZA="+obj1.pos.z,"ZB="+obj2.pos.z]);
+                Debug.print(["Ec Inicial",EcInicial,"P Inicial Total",PTInicial]);
+                Debug.print(["Vetores Iniciais","XA="+obj1.vetor.x,"XB="+obj2.vetor.x,"YA="+obj1.vetor.y,"YB="+obj2.vetor.y,"ZA="+obj1.vetor.z,"ZB="+obj2.vetor.z]);
+                Debug.print(["Momentos Iniciais","X="+calcMomento(obj1,obj2,'x'),"Y="+calcMomento(obj1,obj2,'y'),"Z="+calcMomento(obj1,obj2,'z')]);
+
+                var flagcolisaoX = false;
+                var flagcolisaoY = false;                                                    
+                var flagcolisaoZ = false;                                                    
+
+                if(colisaoSentidos(obj1,obj2,'x')){
+                        Debug.print(["Colisao X",obj1.id,obj2.id]);//noLoop();
+                        //if(ENABLEPAUSECOLISAO)noLoop();
+                        flagcolisaoX = true;
+                        resultX = choque(obj1,obj2,'x');
+                        
+                }
+                if(colisaoSentidos(obj1,obj2,'y')){
+                        Debug.print(["Colisao Y",obj1.id,obj2.id]);//noLoop();
+                        //if(ENABLEPAUSECOLISAO)noLoop();
+                        flagcolisaoY = true;
+                        resultY = choque(obj1,obj2,'y');
+                        
+                }
+                if(colisaoSentidos(obj1,obj2,'z')){
+                        Debug.print(["Colisao Z",obj1.id,obj2.id]);//noLoop();
+                        //if(ENABLEPAUSECOLISAO)noLoop();
+                        flagcolisaoZ = true;
+                        resultZ = choque(obj1,obj2,'z');
+                        
+                }
+
+                if(resultX.length == 0){
+                    resultX = [[obj1.vetor.x,obj2.vetor.x]];
+                }
+
+                if(resultY.length == 0){
+                    resultY = [[obj1.vetor.y,obj2.vetor.y]];
+                }
+
+                if(resultZ.length == 0){
+                    resultZ = [[obj1.vetor.z,obj2.vetor.z]];
+                }
+
+                var config = [0,0,0];
+                var flagSetted = 0;
+                if(flagcolisaoX||flagcolisaoY||flagcolisaoZ){
+                    if(getConfig(CFGHABILITARPAUSACOLISAO))noLoop();
+                    for(var x = 0;x < resultX.length;x++){
+                        for(var y = 0;y < resultY.length;y++){
+                            for(var z = 0;z < resultZ.length;z++){
+                                var XA = resultX[x][0];
+                                var XB = resultX[x][1];
+                                var YA = resultY[y][0];
+                                var YB = resultY[y][1];
+                                var ZA = resultZ[z][0];
+                                var ZB = resultZ[z][1];
+                                
+//                                 var PX = (obj1.massa*XA+obj2.massa*XB);
+//                                 var PY = (obj1.massa*YA+obj2.massa*YB);
+//                                 var PZ = (obj1.massa*ZA+obj2.massa*ZB);
+//                                 
+                                var PX = calcMomento(obj1,obj2,'x');
+                                var PY = calcMomento(obj1,obj2,'y');
+                                var PZ = calcMomento(obj1,obj2,'z');
+                             
+                                var modA = calcModulo(XA,YA,ZA);
+                                var modB = calcModulo(XB,YB,ZB);
+                                
+                                var PT = (obj1.massa*modA+obj2.massa*modB);
+                                var EC = energiaCinetica(modA,modB,obj1.massa,obj2.massa);
+                                
+                                Debug.print([x+"."+y+"."+z,"XA="+XA,"XB="+XB,"YA="+YA,"YB="+YB,"ZA="+ZA,"ZB="+ZB,"PX="+PX,"PY="+PY,"PZ="+PZ,"PT="+PT,"EC="+EC]);
+                                
+                                
+                                if(igual(EC,EcInicial)){
+                                    //if(igual(PT,PTInicial)){
+                                        if(flagcolisaoX){
+                                                if(igual(XA,obj1.vetor.x) && igual(XB,obj2.vetor.x)){
+                                                    Debug.print("Xs IGUAL ANTERIOR");
+                                                    if(!igual(obj1.vetor.x,obj2.vetor.x)){
+                                                        Debug.print("Mas no inicio eles nao eram iguais");
+                                                        continue;//COnfiguracao Invalida - mesma de antes
+                                                    }
+                                                }
+                                        }
+                                        
+                                        if(flagcolisaoY){
+                                                if(igual(YA,obj1.vetor.y) && igual(YB,obj2.vetor.y)){
+                                                    Debug.print("Ys IGUAL ANTERIOR");
+                                                    if(!igual(obj1.vetor.y,obj2.vetor.y)){
+                                                        Debug.print("Mas no inicio eles nao eram iguais");
+                                                        continue;//COnfiguracao Invalida - mesma de antes
+                                                    }
+                                                }
+                                        }
+                                        if(flagcolisaoZ){
+                                                if(igual(ZA,obj1.vetor.z) && igual(ZB,obj2.vetor.z)){
+                                                    Debug.print("Zs IGUAL ANTERIOR");
+                                                    if(!igual(obj1.vetor.z,obj2.vetor.z)){
+                                                        Debug.print("Mas no inicio eles nao eram iguais");
+                                                        continue;//COnfiguracao Invalida - mesma de antes
+                                                    }
+                                                }
+                                        }
+                                        
+                                        
+                                        Debug.print("UHUUUU SETTED "+x+'.'+y+'.'+z);
+                                        config = [x,y,z];
+                                        flagSetted++;
+                                    //}//if PT
+                                }//if EC
+                            }//for z
+                        }//for y
+                    }//for x
+                }//if colisao
+                 if(!flagSetted&&(flagcolisaoX||flagcolisaoY||flagcolisaoZ)){
+                    Debug.erro('NOT SETTED');
+                 }
+                 if(flagSetted>1){
+                    Debug.erro('SETTED TIMES'+flagSetted);
+                 }
+                 
+                 obj1.reverterPosicao();
+                 obj2.reverterPosicao();            
+                 obj1.vetor.set("x",resultX[config[0]][0]);
+                 obj2.vetor.set("x",resultX[config[0]][1]);
+                 obj1.vetor.set("y",resultY[config[1]][0]);
+                 obj2.vetor.set("y",resultY[config[1]][1]);
+                 obj1.vetor.set("z",resultZ[config[2]][0]);
+                 obj2.vetor.set("z",resultZ[config[2]][1]);
+                 
+                 obj1.mover();
+                 obj2.mover();            
+                
+            }//for i
+        }//for j
+        
+                  
+        
         return false;
         
     }catch(err){ alert('Erro Particulas.colisoes(): '+err);}}
-
-}
-
-function calcularNovaVelocidadeA(VA,VB){try{
-    Debug.print(["VA/VB",VA,VB]);
-    var delta = 4*Math.pow(VA,2) - 8*VA*VB + 4*Math.pow(VB,2);
-    Debug.print(["delta",delta]);
-    var raizDelta = Math.sqrt(delta);
-    Debug.print(["raizDelta",raizDelta]);
-    var menosb = 2*VA + 2*VB;
-    Debug.print(["menosb",menosb]);
-    var doisa = 4.0;
-    var result = [round2(((menosb + raizDelta)/doisa),5),round2(((menosb - raizDelta)/doisa),5)];
-    Debug.print(["result"]);
-    Debug.print(result);
-    return result; 
-
-
-
-
-
-}catch(err){ alert('Erro calcularNovaVelocidade():'+err);}}
-// 
-// function energiaCineticaInicial(A,B){
-//      return ((A.velocidade*A.velocidade)/2 + (B.velocidade*B.velocidade)/2);
-//}
-
-class Particula{
-    constructor(id,angulo, velocidade, x, y){
-        this.id = id;
-        this.pos = new Coordenadas(x,y);
-        this.posAnterior = new Coordenadas(null,null);
-        this.cor = Cores.getNewCor();
-        this.raio = 10;
-        this.direcao = angulo * Math.PI / 180;
-        this.velocidade = velocidade;
-        this.vetor = new Coordenadas(Math.cos(this.direcao)*this.velocidade, Math.sin(this.direcao)*this.velocidade);
-    
-    
-        //this.draw();
-    }
-
-    draw(){try{
-    
-        fill(this.cor);
-        strokeWeight(0);
-        ellipse(this.pos.x,CANVASW-this.pos.y,this.raio*2,this.raio*2);
-        
-        fill(255);
-        strokeWeight(0);
-        textSize(15);
-        text(this.id,this.pos.x-5,CANVASW-this.pos.y+5);
-        
-        
-    	
-    }catch(err){ alert('Erro Particula.draw(): '+err);}}
-    
-    mover(){try{
-        var deslocamentoX = this.vetor.x * PASSO;
-        var deslocamentoY = this.vetor.y * PASSO;
-
-        var vetorDeslocamento = new Coordenadas(deslocamentoX,deslocamentoY);
-        
-        this.salvarPosicao();
-        this.pos.soma(vetorDeslocamento);
-        
-
-        var colisao = false;
-        if(this.colisaoRecipienteX()) {
-            this.inverterDirecaoX();
-            colisao = true;
-        }
-        if(this.colisaoRecipienteY()) {
-            this.inverterDirecaoY();
-            colisao = true;
-        }
-        
-        if(colisao){
-            this.reverterPosicao();
-            this.mover();
-            return;
-        }
-        
-    }catch(err){ alert('Erro Particula.mover(): '+err);}}
-    
-    
-    inverterDirecaoX(){
-        this.vetor.x *=-1;
-    }
-    inverterDirecaoY(){
-        this.vetor.y *=-1;
-    }
-    
-    
-    colisaoRecipienteX(){try{
-        if((this.pos.x+this.raio)>CANVASH
-            ||(this.pos.x-this.raio)<0){
-            return true;
-        }
-    
-        return false;
-    	
-    }catch(err){ alert('Erro Particula.colisaoRecipienteX(): '+err);}}
-
-    colisaoRecipienteY(){try{
-        if((this.pos.y+this.raio)>CANVASW
-            ||(this.pos.y-this.raio)<0){
-            return true;
-        }
-    
-        return false;
-    	
-    }catch(err){ alert('Erro Particula.colisaoRecipienteY(): '+err);}}
-
-    colisaoX(obj){try{
-        var objA = this;
-        var objB = obj;
-        
-        if(objA.pos.x <= objB.pos.x){
-           if((objA.pos.x+objA.raio)>(objB.pos.x-objB.raio)){
-        
-                  if(objA.pos.y <= objB.pos.y){
-                     if((objA.pos.y+objA.raio)>(objB.pos.y-objB.raio)){
-                          return true;
-                     }
-                  }
-              
-                  objA = obj;
-                  objB = this;
-
-                  if(objA.pos.y <= objB.pos.y){
-                     if((objA.pos.y+objA.raio)>(objB.pos.y-objB.raio)){
-                          return true;
-                     }
-                  }
-
-
-           }
-        }
-        
-        
-        objA = obj;
-        objB = this;
-        
-        if(objA.pos.x <= objB.pos.x){
-           if((objA.pos.x+objA.raio)>(objB.pos.x-objB.raio)){
-
-                    objA = this;objB = obj;
-
-                    if(objA.pos.y <= objB.pos.y){
-                       if((objA.pos.y+objA.raio)>(objB.pos.y-objB.raio)){
-                            return true;
-                       }
-                    }
-              
-                    objA = obj;objB = this;
-
-                    if(objA.pos.y <= objB.pos.y){
-                       if((objA.pos.y+objA.raio)>(objB.pos.y-objB.raio)){
-                            return true;
-                       }
-                    }
-
-
-           }
-        }
-        
-        return false;
-    	
-    }catch(err){ alert('Erro Particula.colisaoParticula(): '+err);}}
-
-
-
-    salvarPosicao(){try{this.posAnterior.clone(this.pos);}catch(err){ alert('Erro Particula.salvarPosicao(): '+err);}}
-    reverterPosicao(){try{this.pos.clone(this.posAnterior);}catch(err){ alert('Erro Particula.reverterPosicao(): '+err);}}
 
 }
 

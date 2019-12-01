@@ -14,10 +14,21 @@ class Debug{
         }
     
     }
+    static erro(array){
+        Debug.print(array,false,true);
+    }
 
-
-    static print(array,th){
+    static print(array,th,tipoErro){
         try{
+            if(!tipoErro){
+                if(!getConfig(CFGHABILITARDEBUG))return;
+            }else{
+                if(getConfig(CFGHABILITARPAUSAERRO))noLoop();
+                else if(!getConfig(CFGHABILITARERRODEBUG))return;
+                
+            }
+                
+            
             var table = $('tabelaDebug');
             if(!table){
                 //alert('Erro Print.tabela(): tabelaDebug NotFound');
@@ -26,17 +37,23 @@ class Debug{
             var tr = document.createElement('tr');
             var tag = 'td';if(th)tag = 'th';
             
-            for(var i in array){
-                var td = document.createElement(tag);
-                var texto = array[i];        
-                var cor = null; 
-                if(Array.isArray(array[i])){
-                    texto = array[i][0];
-                    cor = array[i][1];
-                    td.style.backgroundColor = 'rgb('+cor[0]+','+cor[1]+','+cor[2]+')';                                    
-                }
-                td.innerHTML = texto;
-                tr.appendChild(td); 
+            if(Array.isArray(array)){
+                  for(var i in array){
+                      var td = document.createElement(tag);
+                      var texto = array[i];        
+                      var cor = null; 
+                      if(Array.isArray(array[i])){
+                          texto = array[i][0];
+                          cor = array[i][1];
+                          td.style.backgroundColor = 'rgb('+cor[0]+','+cor[1]+','+cor[2]+')';                                    
+                      }
+                      td.innerHTML = texto;
+                      tr.appendChild(td); 
+                  }
+            }else{
+                    var td = document.createElement(tag);
+                    td.innerHTML = array;
+                    tr.appendChild(td);
             }
             table.appendChild(tr);            
         }catch(err){
@@ -77,4 +94,4 @@ class Debug{
 //     }
 
 }
-alert('Print.js already');
+//alert('Print.js already');

@@ -1,7 +1,7 @@
 corModelo = 
     [
-    [255,0,0] //vermelho
-    ,[150,0,0] //vermelho
+    [200,50,50] //vermelho
+    ,[250,0,0] //vermelho
     ,[0,200,0]   //verde
     ,[0,100,0]   //verde
     ,[0,0,255] //azul
@@ -28,6 +28,8 @@ coresClientes =
     
            
 class Cores{
+
+    static getCor(codCor){ try{ return corModelo[codCor-1]; }catch(err){ alert('Erro getCor:'+err); } }
 
     static getNewCor(codCor, indice){
         try{
