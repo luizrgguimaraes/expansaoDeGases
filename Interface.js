@@ -123,7 +123,7 @@ function inserirLinhaTitulo(nometabela){
 
 function preencherTabela(nometabela,id,dados){try{
 
-        //alert(74);    
+
         var table = $(nometabela);
         
         var tr = document.createElement('tr');

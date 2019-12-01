@@ -94,4 +94,4 @@ class Debug{
 //     }
 
 }
-alert('Print.js already');
+//alert('Print.js already');

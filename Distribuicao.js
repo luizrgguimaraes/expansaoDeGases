@@ -36,4 +36,4 @@ class Distribuicao{
 
 }
 
-alert('Distribuicao OK');
+//alert('Distribuicao OK');
