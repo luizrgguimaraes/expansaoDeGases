@@ -6,24 +6,42 @@
         <link href="style.css" rel="stylesheet">
         <script src="js/p5.min.js"></script>
         <script src="js/Particulas.js"></script>
+        <script src="js/Particula.js"></script>
         <script src="js/Cores.js"></script>
         <script src="js/Debug.js"></script>
         <script src="js/utils.js"></script>
+        <script src="js/Distribuicao.js"></script>
+        <script src="js/Fisica.js"></script>
+        <script src="js/Coordenadas.js"></script>
+        <script src="js/Interface.js"></script>
 
     </head>
-    <body>
+    <body >
         <div>
             <button onclick="setup();noLoop();">reset</button>
             <button onclick="draw();">passo</button>
-            <button onclick="noLoop();">pause</button>
+            <button onclick="noLoop();GLOBALS.noLoop=1;">pause</button>
             <button onclick="loop();">auto</button>
+            <button onclick="Debug.limpar();">limpar tabela(inativo)</button>
 
         </div>
         
-        <div style="position:absolute;top:100px;left:700px;border: 0px solid red;height:550px;overflow:auto;">
-            <h2>Resultados</h2>
+        <div style="position:absolute;top:20px;left:700px;border: 0px solid red;height:550px;overflow:auto;">
             <table id="tabelaDebug"></table>
         </div>
+        
+<div id="divConfiguracoes" 
+    style="position:absolute;top:370px;left:0px;border: 0px solid red;height:550px;overflow:auto;">
+    <table id="tblConfiguracoesDebug">
+    
+    </table>
+   
+   <table style="display:none;"> <!--tabela modelo -->
+    <tr ><td ><input type="checkbox" id="modeloCheckbox" onclick="setBackConfigCheckBox(this);"></td></tr>
+    <tr ><td ><input type="text" id="modeloTextbox" onchange="setBackConfigCheckBox(this);"></td></tr>
+    </table>   
+</div>
+
 
 
         <script src="main.js"></script>
