@@ -1,3 +1,27 @@
+function setup() {
+  createCanvas(710, 400, WEBGL);
+}
+
+function draw() {
+  background(100);
+
+  noStroke();
+  fill(50);
+  push();
+  translate(-275, 175);
+  rotateY(1.25);
+  rotateX(-0.9);
+  box(100);
+  pop();
+
+  noFill();
+  stroke(255);
+  push();
+  translate(500, height * 0.35, -200);
+  sphere(300);
+  pop();
+}
+
 class Particula{
     constructor(id,anguloXY,anguloXZ,velocidade, massa){try{
         this.id = id;
@@ -15,21 +39,42 @@ class Particula{
         var componenteX = Math.cos(direcaoXZ)*Math.cos(direcaoXY)*this.velocidade;
         var componenteZ = Math.sin(direcaoXZ)*Math.cos(direcaoXY)*this.velocidade;
         this.vetor = new Coordenadas(componenteX,componenteY,componenteZ);
+        this.historicoPosicao = new Pilha();
+        this.historicoVetor = new Pilha();
+        this.nColisoesParede = 0;
+        this.nColisoesMoleculas = 0;
+        criarLinhaMolecula(this);
+        
+        
+        
+        
     }catch(err){ alert('Erro new Particula(): '+err);}}
     
-    draw(){try{
+    getEnergiaCinetica(){
+        return energiaCinetica(this.getModulo(),0,this.massa,0);
+    }
     
-        fill(this.cor);
-        strokeWeight(0);
-        ellipse(this.pos.x,CANVASW-this.pos.y,this.raio*2,this.raio*2);
-        ellipse(this.pos.z+CANVASH+LARGURADIVISORIA,CANVASW-this.pos.y,this.raio*2,this.raio*2);
+    drawXY(){try{
+         //desenhar();return;
+//         fill(this.cor);
+//         strokeWeight(0);
+        
+        desenhar(this);
+        //ellipse(this.pos.x,CANVASW-this.pos.y,this.raio*2,this.raio*2);
+         //sphere(this.pos.x,CANVASW-this.pos.y,this.raio*2,this.raio*2);
+            //fill(255);
+//           stroke(255);
+//             push();
+//             translate(0, 0, 200);
+//             sphere(10);
+//             pop();
+//           return;
          
         if(getConfig(CFGHABILITARNUMEROPARTICULA)){
             fill(255);
             strokeWeight(0);
             textSize(15);
             text(this.id,this.pos.x-5,CANVASW-this.pos.y+5);
-            text(this.id,this.pos.z-5+CANVASH+LARGURADIVISORIA,CANVASW-this.pos.y+5);
         }
         
         if(getConfig(CFGHABILITARDIRECAOPARTICULA)){
@@ -43,12 +88,35 @@ class Particula{
                     y*=1.1;
                     h = Math.sqrt(x**2 + y**2);            
                 }
-        
                 line(this.pos.x,CANVASW-this.pos.y,this.pos.x+x,CANVASW-this.pos.y-y);
                 
+        }
+        
+        
+    }catch(err){ alert('Erro Particula.drawXY(): '+err);}}
+    
+    drawZY(){try{
+    
+        //fill(this.cor);
+        //strokeWeight(0);
+        
+        desenhar(this,LARGURADIVISORIA);
+        //ellipse(this.pos.z+CANVASH+LARGURADIVISORIA,CANVASW-this.pos.y,this.raio*2,this.raio*2);
+         
+        if(getConfig(CFGHABILITARNUMEROPARTICULA)){
+            fill(255);
+            strokeWeight(0);
+            textSize(15);
+            text(this.id,this.pos.z-5+CANVASH+LARGURADIVISORIA,CANVASW-this.pos.y+5);
+        }
+        
+        if(getConfig(CFGHABILITARDIRECAOPARTICULA)){
+                stroke(255);
+                strokeWeight(4);
+                
                 var z = this.vetor.z;
-                y = this.vetor.y;
-                h = Math.sqrt(z**2 + y**2);
+                var y = this.vetor.y;
+                var h = Math.sqrt(z**2 + y**2);
                 while(h<(this.raio*2)){
                     z*=1.1;
                     y*=1.1;
@@ -58,8 +126,33 @@ class Particula{
         }
         
         
-    }catch(err){ alert('Erro Particula.draw(): '+err);}}
+    }catch(err){ alert('Erro Particula.drawZY(): '+err);}}
     
+    historico(){try{
+        
+            var clonePos = new Coordenadas();
+            clonePos.clone(this.pos);
+            this.historicoPosicao.add(clonePos);
+            
+            var cloneVet = new Coordenadas();
+            cloneVet.clone(this.vetor);
+            return this.historicoVetor.add(cloneVet);
+    
+    }catch(err){ alert('Erro Particula.historico(): '+err);}}
+
+    back(){try{
+            var pos = this.historicoPosicao.get();
+            var vet = this.historicoVetor.get();  
+            
+            if(pos&&vet){
+                this.pos.clone(pos);
+                this.vetor.clone(vet);
+                return true;
+            }
+            return false;
+            
+    }catch(err){ alert('Erro Particula.back(): '+err);}}
+
     mover(){try{
         var deslocamentoX = this.vetor.x * getConfig(CFGPASSO);
         var deslocamentoY = this.vetor.y * getConfig(CFGPASSO);
@@ -94,6 +187,7 @@ class Particula{
         if(colisao){
             this.reverterPosicao();
             this.mover();
+            this.nColisoesParede++;
             return;
         }
         
@@ -102,12 +196,19 @@ class Particula{
     
     inverterDirecaoX(){
         this.vetor.x *=-1;
+        
+        
+        GLOBALS.qtdTotalMomento += Math.abs(2*this.massa*this.vetor.x);
+         
     }
     inverterDirecaoY(){
+        
         this.vetor.y *=-1;
+        GLOBALS.qtdTotalMomento += Math.abs(2*this.massa*this.vetor.y);
     }
     
     inverterDirecaoZ(){
+        GLOBALS.qtdTotalMomento += Math.abs(2*this.massa*this.vetor.z);
         this.vetor.z *=-1;
     }
     
@@ -190,31 +291,11 @@ class Particula{
 
     salvarPosicao(){try{this.posAnterior.clone(this.pos);}catch(err){ alert('Erro Particula.salvarPosicao(): '+err);}}
     reverterPosicao(){try{this.pos.clone(this.posAnterior);}catch(err){ alert('Erro Particula.reverterPosicao(): '+err);}}
-
+    getModulo(){try{return calcModulo(this.vetor.x,this.vetor.y,this.vetor.z); }catch(err){ alert('Erro getModulo(): '+err);}}
 }
 
 
-function colisaoX(objA,objB,flag){try{
-        var xa = objA.pos.x;
-        var xb = objB.pos.x;
-        var va = objA.vetor.x;
-        var vb = objB.vetor.x;
-        if(xa < xb){
-                if( va <= 0 && vb < 0 && vb < va){     
-                   return true;
-                    //          <A      <<<B
-                }else if(va > 0 && vb >= 0 && va > vb){
-                    return true;
-                    //          A>>>    B>
-                }else if(va > 0 && vb < 0){
-                    return true;
-                    //          A>>>    <<<B
-                }
-        }else{
-            if(!flag)return colisaoX(objB,objA,true); //inverter posicao
-        }
-        return false;
-}catch(err){ alert('Erro colisaoX(): '+err);}}
+
 
 function colisaoSentidos(objA,objB,eixo,flag){try{
         var pa = objA.pos.get(eixo);
@@ -241,26 +322,6 @@ function colisaoSentidos(objA,objB,eixo,flag){try{
 
 
 
-function colisaoY(objA,objB,flag){try{
-        var xa = objA.pos.y;
-        var xb = objB.pos.y;
-        var va = objA.vetor.y;
-        var vb = objB.vetor.y;
-        if(xa < xb){
-                if( va <= 0 && vb < 0 && vb < va){     
-                   return true;
-                    //          <A      <<<B
-                }else if(va > 0 && vb >= 0 && va > vb){
-                    return true;
-                    //          A>>>    B>
-                }else if(va > 0 && vb < 0){
-                    return true;
-                    //          A>>>    <<<B
-                }
-        }else{
-            if(!flag)return colisaoY(objB,objA,true); //inverter posicao
-        }
-        return false;
-}catch(err){ alert('Erro colisaoY(): '+err);}}
+
 
 //alert('ola Particula');

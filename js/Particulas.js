@@ -1,6 +1,8 @@
 class Particulas{
     constructor(){
         this.array = Array();
+        this.tamanhoMinimoHistorico = 1;
+        criarLinhaMoleculaTotais();
     }
 
     add(obj){try{
@@ -8,11 +10,29 @@ class Particulas{
     }catch(err){ alert('Erro Particulas.add(): '+err);}}
 
     draws(){try{
+        var arrayDesordenadaZ = Array();
         for(var i=0; i < this.array.length;i++){
-             this.array[i].draw();
+             arrayDesordenadaZ.push(this.array[i].vetor.z);
         }
-    }catch(err){ alert('Erro Particulas.draws(): '+err);}}
+        var ordemXY = definirOrdem(arrayDesordenadaZ);
+        for(var i=ordemXY.length-1; i >=0 ;i--){
+               
+             this.array[i].drawXY();
+             
+        }
+        
+        var arrayDesordenadaX = Array();
+        for(var i=0; i < this.array.length;i++){
+             arrayDesordenadaX.push(this.array[i].vetor.x);
+        }
+        var ordemZY = definirOrdem(arrayDesordenadaX);
+        for(var i=ordemZY.length-1; i >=0 ;i--){
+            this.array[i].drawZY();
+        }
+                
 
+    }catch(err){ alert('Erro Particulas.draws(): '+err);}}
+                              
     movers(){try{
         
         for(var i=0; i < this.array.length;i++){
@@ -20,6 +40,50 @@ class Particulas{
         }
     }catch(err){ alert('Erro Particulas.movers(): '+err);}}
 
+    atualizarTabela(){try{
+        var colisoesParede = 0;
+        var colisoesMoleculas = 0;
+        var energiaCinetica = 0;
+        for(var i=0; i < this.array.length;i++){
+            atualizarLinhaMolecula(this.array[i]);
+            colisoesParede += this.array[i].nColisoesParede;
+            colisoesMoleculas += this.array[i].nColisoesMoleculas;
+            energiaCinetica += this.array[i].getEnergiaCinetica();
+        }
+        atualizarLinhaMoleculaTotais(colisoesParede,colisoesMoleculas,energiaCinetica);
+        return energiaCinetica;        
+        
+    }catch(err){ alert('Erro Particulas.atualizarTabela(): '+err);}}
+
+
+    historico(){try{
+        this.tamanhoMinimoHistorico = this.array[0].historico();
+        for(var i=1; i < this.array.length;i++){
+            var tamanho = this.array[i].historico();
+            if(tamanho<this.tamanhoMinimoHistorico){
+                this.tamanhoMinimoHistorico = tamanho;
+            }
+        }
+        Interface.updateBack(this.tamanhoMinimoHistorico);
+    }catch(err){ alert('Erro Particulas.historico(): '+err);}}
+
+    backs(){try{
+        
+        if(this.tamanhoMinimoHistorico){
+                var res = 0;
+                for(var i=0; i < this.array.length;i++){
+                    var tamanho = this.array[i].back(); 
+                    if(tamanho)res++;
+                }
+                this.tamanhoMinimoHistorico--;
+                Interface.updateBack(this.tamanhoMinimoHistorico);
+                if(res==this.array.length)return true;else return false;
+        }
+        return false;
+    }catch(err){ alert('Erro Particulas.backs(): '+err);}}
+
+    
+    
     colisoes(){try{
  
         for(var i=0; i < (this.array.length-1);i++){
@@ -31,13 +95,13 @@ class Particulas{
                 if(!obj1.longe(obj2)){
                     continue;
                 }
-               Debug.print(["Objetos Muito Perto",obj1.id,obj2.id]);
+//               Debug.print(["Objetos Muito Perto",obj1.id,obj2.id]);
 
 
                 if(!obj1.sobreposicao(obj2)){
                     continue;
                 }
-                Debug.print(["Objetos Sobrepostos",obj1.id,obj2.id]);
+//                Debug.print(["Objetos Sobrepostos",obj1.id,obj2.id]);
                 
                 
                 var resultX = Array();
@@ -96,6 +160,8 @@ class Particulas{
                 var config = [0,0,0];
                 var flagSetted = 0;
                 if(flagcolisaoX||flagcolisaoY||flagcolisaoZ){
+                    obj1.nColisoesMoleculas++;
+                    obj2.nColisoesMoleculas++;
                     if(getConfig(CFGHABILITARPAUSACOLISAO))noLoop();
                     for(var x = 0;x < resultX.length;x++){
                         for(var y = 0;y < resultY.length;y++){
@@ -121,16 +187,16 @@ class Particulas{
                                 var PT = (obj1.massa*modA+obj2.massa*modB);
                                 var EC = energiaCinetica(modA,modB,obj1.massa,obj2.massa);
                                 
-                                Debug.print([x+"."+y+"."+z,"XA="+XA,"XB="+XB,"YA="+YA,"YB="+YB,"ZA="+ZA,"ZB="+ZB,"PX="+PX,"PY="+PY,"PZ="+PZ,"PT="+PT,"EC="+EC]);
+                                //Debug.print([x+"."+y+"."+z,"XA="+XA,"XB="+XB,"YA="+YA,"YB="+YB,"ZA="+ZA,"ZB="+ZB,"PX="+PX,"PY="+PY,"PZ="+PZ,"PT="+PT,"EC="+EC]);
                                 
                                 
                                 if(igual(EC,EcInicial)){
                                     //if(igual(PT,PTInicial)){
                                         if(flagcolisaoX){
                                                 if(igual(XA,obj1.vetor.x) && igual(XB,obj2.vetor.x)){
-                                                    Debug.print("Xs IGUAL ANTERIOR");
+//                                                    Debug.print("Xs IGUAL ANTERIOR");
                                                     if(!igual(obj1.vetor.x,obj2.vetor.x)){
-                                                        Debug.print("Mas no inicio eles nao eram iguais");
+//                                                        Debug.print("Mas no inicio eles nao eram iguais");
                                                         continue;//COnfiguracao Invalida - mesma de antes
                                                     }
                                                 }
@@ -138,25 +204,25 @@ class Particulas{
                                         
                                         if(flagcolisaoY){
                                                 if(igual(YA,obj1.vetor.y) && igual(YB,obj2.vetor.y)){
-                                                    Debug.print("Ys IGUAL ANTERIOR");
+//                                                    Debug.print("Ys IGUAL ANTERIOR");
                                                     if(!igual(obj1.vetor.y,obj2.vetor.y)){
-                                                        Debug.print("Mas no inicio eles nao eram iguais");
+//                                                        Debug.print("Mas no inicio eles nao eram iguais");
                                                         continue;//COnfiguracao Invalida - mesma de antes
                                                     }
                                                 }
                                         }
                                         if(flagcolisaoZ){
                                                 if(igual(ZA,obj1.vetor.z) && igual(ZB,obj2.vetor.z)){
-                                                    Debug.print("Zs IGUAL ANTERIOR");
+//                                                    Debug.print("Zs IGUAL ANTERIOR");
                                                     if(!igual(obj1.vetor.z,obj2.vetor.z)){
-                                                        Debug.print("Mas no inicio eles nao eram iguais");
+//                                                        Debug.print("Mas no inicio eles nao eram iguais");
                                                         continue;//COnfiguracao Invalida - mesma de antes
                                                     }
                                                 }
                                         }
                                         
                                         
-                                        Debug.print("UHUUUU SETTED "+x+'.'+y+'.'+z);
+                                        Debug.print(["SUCCESS","SETTED CONFIG OK",x,y,z]);
                                         config = [x,y,z];
                                         flagSetted++;
                                     //}//if PT
@@ -166,10 +232,10 @@ class Particulas{
                     }//for x
                 }//if colisao
                  if(!flagSetted&&(flagcolisaoX||flagcolisaoY||flagcolisaoZ)){
-                    Debug.erro('NOT SETTED');
+                    Debug.erro(['ERRO','NOT SETTED']);
                  }
                  if(flagSetted>1){
-                    Debug.erro('SETTED TIMES'+flagSetted);
+                    Debug.erro(['ERRO','SETTED TIMES'+flagSetted]);
                  }
                  
                  obj1.reverterPosicao();
@@ -181,8 +247,9 @@ class Particulas{
                  obj1.vetor.set("z",resultZ[config[2]][0]);
                  obj2.vetor.set("z",resultZ[config[2]][1]);
                  
-                 obj1.mover();
-                 obj2.mover();            
+                 Debug.print(["Novos Vetores","XA="+obj1.vetor.x,"XB="+obj2.vetor.x,"YA="+obj1.vetor.y,"YB="+obj2.vetor.y,"ZA="+obj1.vetor.z,"ZB="+obj2.vetor.z]);
+                obj1.mover();
+                obj2.mover();            
                 
             }//for i
         }//for j

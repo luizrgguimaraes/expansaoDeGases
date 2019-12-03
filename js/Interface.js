@@ -1,3 +1,10 @@
+class Interface{
+
+    static updateBack(value){
+        $('btnBack').innerHTML = 'back('+value+')';
+    } 
+}
+
 function setFrontConfigCheckBox(idconfig){try{
     
     var tipo = GLOBALS.config[idconfig][0]; 
@@ -10,6 +17,137 @@ function setFrontConfigCheckBox(idconfig){try{
     }
     
 }catch(err){ alert('Erro setFrontConfigCheckBox: '+err); }}
+
+function criarLinhaMoleculaTotais(){try{
+    var table = $('tblMoleculas');
+    var tr = document.createElement('tr');
+    var td;
+    
+    td = document.createElement('td');
+    //td.innerHTML = particula.id;
+    //td.id = 'moleculaId'+particula.id;
+    td.className = 'tdConfig';
+    tr.appendChild(td);
+    
+    td = document.createElement('td');
+    //td.innerHTML = particula.massa;
+    //td.id = 'moleculaMassa'+particula.id;
+    td.className = 'tdConfig';
+    tr.appendChild(td);
+    
+    td = document.createElement('td');
+    td.innerHTML = 0;
+    //td.id = 'moleculaModuloTotal';
+    //td.className = 'tdConfig';
+    tr.appendChild(td);
+    
+    td = document.createElement('td');
+    td.innerHTML = 0;
+    td.id = 'moleculaColisoesParedeTotal';
+    td.className = 'tdConfig';
+    tr.appendChild(td);
+    
+    td = document.createElement('td');
+    td.innerHTML = 0;
+    td.id = 'moleculaColisoesMoleculasTotal';
+    td.className = 'tdConfig';
+    tr.appendChild(td);
+    
+    td = document.createElement('td');
+    td.innerHTML = 0;
+    td.id = 'moleculaEnergiaCineticaTotal';
+    td.className = 'tdConfig';
+    tr.appendChild(td);
+    
+    
+    table.appendChild(tr);
+    
+
+}catch(err){ alert('Erro criarLinhaMoleculaTotais: '+err); }}
+
+function criarLinhaMolecula(particula){try{
+    var table = $('tblMoleculas');
+    var tr = document.createElement('tr');
+    var td;
+    
+    td = document.createElement('td');
+    td.innerHTML = particula.id;
+    td.id = 'moleculaId'+particula.id;
+    td.className = 'tdConfig';
+    tr.appendChild(td);
+    
+    td = document.createElement('td');
+    td.innerHTML = particula.massa;
+    td.id = 'moleculaMassa'+particula.id;
+    td.className = 'tdConfig';
+    tr.appendChild(td);
+    
+    td = document.createElement('td');
+    td.innerHTML = round2(particula.getModulo(),3);
+    td.id = 'moleculaModulo'+particula.id;
+    td.className = 'tdConfig';
+    tr.appendChild(td);
+    
+    td = document.createElement('td');
+    td.innerHTML = particula.nColisoesParede;
+    td.id = 'moleculaColisoesParede'+particula.id;
+    td.className = 'tdConfig';
+    tr.appendChild(td);
+    
+    td = document.createElement('td');
+    td.innerHTML = particula.nColisoesMoleculas;
+    td.id = 'moleculaColisoesMoleculas'+particula.id;
+    td.className = 'tdConfig';
+    tr.appendChild(td);
+    
+    td = document.createElement('td');
+    td.innerHTML = round2(particula.getEnergiaCinetica(),3);
+    td.id = 'moleculaEnergiaCinetica'+particula.id;
+    td.className = 'tdConfig';
+    tr.appendChild(td);
+    
+    
+    table.appendChild(tr);
+    
+
+}catch(err){ alert('Erro criarLinhaMolecula: '+err); }}
+
+function atualizarLinhaMolecula(particula){try{
+    var table = $('tblMoleculas');
+    
+    
+    td = $('moleculaModulo'+particula.id);
+    td.innerHTML = round2(particula.getModulo(),3);
+    
+    td = $('moleculaColisoesParede'+particula.id);
+    td.innerHTML = particula.nColisoesParede;
+    
+    td = $('moleculaColisoesMoleculas'+particula.id);
+    td.innerHTML = particula.nColisoesMoleculas;
+    
+    td = $('moleculaEnergiaCinetica'+particula.id);
+    td.innerHTML = round2(particula.getEnergiaCinetica(),3);
+    
+    
+    
+}catch(err){ alert('Erro atualizarLinhaMolecula: '+err); }}
+
+function atualizarLinhaMoleculaTotais(colisoesParede,colisoesMoleculas,energiaCinetica){try{
+    var td;
+    
+    
+    td = $('moleculaColisoesParedeTotal');
+    td.innerHTML = colisoesParede;
+    
+    td = $('moleculaColisoesMoleculasTotal');
+    td.innerHTML = colisoesMoleculas;
+    
+    td = $('moleculaEnergiaCineticaTotal');
+    td.innerHTML = round2(energiaCinetica,3);
+    
+    
+    
+}catch(err){ alert('Erro atualizarLinhaMolecula: '+err); }}
 
 
 function setBackConfigCheckBox(obj){try{

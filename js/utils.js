@@ -1,5 +1,14 @@
 // JavaScript Document
 
+function show(elementId){try{
+    var element = $(elementId);
+     if(element.style.display == 'none'){
+        element.style.display = '';
+     }else{
+        element.style.display = 'none';        
+     }
+}catch(err){ alert('Erro show: '+err); }}
+
 function round2(num, casas){
     try{
     
@@ -85,5 +94,53 @@ function formatted_string(pad, user_str, pad_pos)
     return (user_str + pad).substring(0, pad.length);
     }
 }
+
+
+class Pilha{
+    constructor(){
+        this.limite = CFGMAXBACK;
+        this.cabeca = 0;
+        this.topo = 0;
+        this.count = 0;
+        this.pilha = Array();
+    }
+    add(obj){try{
+        if(this.count<this.limite){
+            this.pilha[this.topo] = obj;
+            this.topo++;
+            this.count++;        
+        }else{
+            this.topo = this.cabeca;
+            this.cabeca++;
+            if(this.cabeca>=this.limite){
+                this.cabeca=0;
+            }
+            this.pilha[this.topo] = obj;
+            this.topo++;                                    
+        }
+        if(this.topo>=this.limite)this.topo=0;
+        return this.count;
+
+    }catch(err){alert("Erro Pilha.add: "+err)}}
+    
+    get(){try{
+        var result = null;
+        if(this.count>0){
+            result = this.pilha[this.topo-1];
+            this.topo--;
+            this.count--;
+            if(this.count>0&&this.topo==0)this.topo=this.limite;
+        }
+
+        return result;                
+    }catch(err){alert("Erro Pilha.get(): "+err)}}
+    
+    print(){try{
+        Debug.erro(this.pilha);
+        Debug.erro(["topo="+this.topo,"cabeca="+this.cabeca,"count="+this.count]);
+    }catch(err){alert("Erro Pilha.print(): "+err)}}
+
+}
+
 
 //alert('utils ok');

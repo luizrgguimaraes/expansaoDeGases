@@ -7,6 +7,8 @@ function energiaCinetica(vA,vB,mA,mB){
     return ((mA*vA*vA)/2 + (mB*vB*vB)/2);
 }
 
+
+
 function calcModulo(x,y,z){
     var modulo = Math.sqrt(x**2 + y**2 + z**2);
     return modulo;
