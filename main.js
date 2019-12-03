@@ -1,11 +1,13 @@
 
+
+
 const FRAMERATE = 60;
 const CANVASW = 300;
 const CANVASH = 300;
 const LARGURADIVISORIA = 5;
 const CORFUNDOCANVAS = [0,0,0];
-const CFGQTDCONFIGLINHA = 3;
-
+const CFGQTDCONFIGLINHA = 2;
+const CFGMAXBACK = 200;
 
 const CFGHABILITARDEBUG =           0;
 const CFGHABILITARERRODEBUG =       1;
@@ -32,10 +34,10 @@ const TIPOLABEL = 2;
 class GLOBALS{}
 GLOBALS.config = Array();
 GLOBALS.config[CFGHABILITARDEBUG] =[TIPOCHECKBOX,0,"Habilitar Debug"];
-GLOBALS.config[CFGHABILITARERRODEBUG] =[TIPOCHECKBOX,0,"Habilitar Erros"];
+GLOBALS.config[CFGHABILITARERRODEBUG] =[TIPOCHECKBOX,1,"Habilitar Erros"];
 GLOBALS.config[CFGHABILITARPAUSAERRO] =[TIPOCHECKBOX,0,"Pausar no Erro"];
-GLOBALS.config[CFGHABILITARPAUSACOLISAO] =[TIPOCHECKBOX,1,"Pausar na colisao"];
-GLOBALS.config[CFGHABILITARNUMEROPARTICULA] =[TIPOCHECKBOX,1,"Mostrar Número da Molécula"];
+GLOBALS.config[CFGHABILITARPAUSACOLISAO] =[TIPOCHECKBOX,0,"Pausar na colisao"];
+GLOBALS.config[CFGHABILITARNUMEROPARTICULA] =[TIPOCHECKBOX,0,"Mostrar Número da Molécula"];
 GLOBALS.config[CFGHABILITARDIRECAOPARTICULA] =[TIPOCHECKBOX,0,"Mostrar Direcao da Particula"];
 GLOBALS.config[CFGPASSO] =[TIPOTEXTBOX,1,"Passo de deslocamento"];
 GLOBALS.config[CFGERRO] =[TIPOTEXTBOX,0.001,"Erro"];
@@ -55,9 +57,10 @@ criarElementosConfig("tblConfiguracoesDebug");
 function setup() {try{
 
         frameRate(FRAMERATE);
-        createCanvas(CANVASH+CANVASH+LARGURADIVISORIA, CANVASW);
+        createCanvas(CANVASH+CANVASH+LARGURADIVISORIA+CANVASH,CANVASW);//WEBGL
         //createCanvas(CANVASH, CANVASW);
         noLoop();
+        
         
         
         GLOBALS.particulas = new Particulas();
@@ -73,17 +76,54 @@ function setup() {try{
         GLOBALS.segundo = 0;
         GLOBALS.noLoop = 0;
         
-
+        GLOBALS.qtdTotalMomento = 0;
+        GLOBALS.area = 6*CANVASH*CANVASH;
+        GLOBALS.pressao = 0;
+        GLOBALS.T = 0;
+        
+        
 }catch(err){ alert('Erro setup(): '+err); }}
 
-function draw() {try{
+function drawText(pressao,tempo,temperatura){try{
+        fill([255,255,255]);
+        strokeWeight(1);
+        textSize(17);
+        text('Pressao: '+round2(pressao,10),CANVASH+CANVASH+LARGURADIVISORIA+10,100);    //CANVASH+CANVASH+LARGURADIVISORIA+CANVASH
+        text('Tempo: '+tempo,CANVASH+CANVASH+LARGURADIVISORIA+10,150);
+        text('Temperatura: '+temperatura,CANVASH+CANVASH+LARGURADIVISORIA+10,200);
+        
+}catch(err){ alert('Erro drawTabela: '+err); }}
+
+
+function draw(flagBack) {try{
+
+        
         
         if(getConfig(CFGMOSTRARRASTRO))background('rgba(200,200,200, 0.25)');
         else background(CORFUNDOCANVAS);
         
         
+        if(flagBack){
+            if(GLOBALS.particulas.backs()){
+                GLOBALS.tempo--;
+            }
+            noLoop();
+            stroke(255,0,0); strokeWeight(LARGURADIVISORIA); line(CANVASH,0,CANVASH,CANVASW);
+            stroke(255,0,0); strokeWeight(LARGURADIVISORIA); line(CANVASH+LARGURADIVISORIA+CANVASH,0,CANVASH+LARGURADIVISORIA+CANVASH,CANVASW);
+            GLOBALS.particulas.draws();
+            drawText(GLOBALS.pressao,GLOBALS.tempo,GLOBALS.T);
+            return;
+        }
+        
+        
         if(GLOBALS.tempo%FRAMERATE==0){
             GLOBALS.segundo++;
+            //Debug.erro(['Mudanca Total de momento',GLOBALS.qtdTotalMomento]);
+            //Debug.erro(['Pressao = ',GLOBALS.qtdTotalMomento/GLOBALS.area]);
+            
+            
+            GLOBALS.pressao = GLOBALS.qtdTotalMomento/GLOBALS.area;
+            GLOBALS.qtdTotalMomento = 0;
             
             
             if(GLOBALS.idParticula<getConfig(CFGMAXPARTICULAS)){
@@ -111,21 +151,27 @@ function draw() {try{
                     if(getConfig(CFGESTOCASTICAMASSA)==""){
                         massa = GLOBALS.distribuicaoMassa.getValor();
                     }else{
-                        massa = getConfig(CFGESTOCASTICAMASSA)
+                        massa = getConfig(CFGESTOCASTICAMASSA);
                     }
                     
-                    massa = GLOBALS.distribuicaoMassa.getValor();
                     GLOBALS.particulas.add(new Particula(GLOBALS.idParticula,anguloXY,anguloXZ,velocidade,massa));
             }
             
         }
+        GLOBALS.particulas.historico();
+        
         GLOBALS.particulas.draws();
+        var EcT = GLOBALS.particulas.atualizarTabela();
+        GLOBALS.T = EcT/3/2*1.38*10**-23
 
         GLOBALS.particulas.movers();
         
         GLOBALS.particulas.colisoes();
         
+        
+        drawText(GLOBALS.pressao,GLOBALS.tempo, GLOBALS.T);
         stroke(255,0,0); strokeWeight(LARGURADIVISORIA); line(CANVASH,0,CANVASH,CANVASW);
+        stroke(255,0,0); strokeWeight(LARGURADIVISORIA); line(CANVASH+LARGURADIVISORIA+CANVASH,0,CANVASH+LARGURADIVISORIA+CANVASH,CANVASW);
         
         GLOBALS.tempo++;
         
@@ -136,3 +182,33 @@ function draw() {try{
 
 
 //alert('ola main');
+
+
+
+// function setup() {
+//   createCanvas(710, 400, WEBGL);
+//}
+let detailX;
+function desenhar(obj,deslocamentoX) {
+    
+    fill(obj.cor);
+    strokeWeight(0);
+    if(deslocamentoX)ellipse(obj.pos.z+CANVASH+LARGURADIVISORIA,CANVASW-obj.pos.y,obj.raio*2,obj.raio*2);
+    else ellipse(obj.pos.x,CANVASW-obj.pos.y,obj.raio*2,obj.raio*2);
+
+//   background(100);
+// 
+//  
+//         strokeFill(255,0,0);
+//         
+//         //detailX = createSlider(3, 24, 3);
+//         //detailX.position(10, height + 5);
+//         //detailX.style('width', '80px');
+//         
+//         strokeWeight(5);
+//         stroke(255);
+//         push();
+//         translate(50, 50, 50);
+//         sphere(10);
+//         pop();
+}

@@ -18,20 +18,29 @@
     </head>
     <body >
         <div>
-            <button onclick="setup();noLoop();">reset</button>
+            <button onclick="setup();noLoop();draw();">reset</button>
             <button onclick="draw();">passo</button>
             <button onclick="noLoop();GLOBALS.noLoop=1;">pause</button>
             <button onclick="loop();">auto</button>
-            <button onclick="Debug.limpar();">limpar tabela(inativo)</button>
-
+            
+            <button id=btnBack onclick="draw(true);noLoop();">back</button>
+            <button id=btnBack onclick="show('divConfiguracoes')">options</button>
+            <button id=btnBack onclick="show('divLog')">log</button>
+            
+            <button id=btnBack onclick="show('divMoleculas')">tbl moleculas</button>
         </div>
         
-        <div style="position:absolute;top:20px;left:700px;border: 0px solid red;height:550px;overflow:auto;">
+        <div id=divLog style="display:none;position:absolute;top:580px;left:800px;border: 0px solid red;height:550px;overflow:auto;">
+            <h2>Log</h2>
+            <button onclick="Debug.limpar();">clear Log</button>
             <table id="tabelaDebug"></table>
+            
+             
         </div>
         
 <div id="divConfiguracoes" 
-    style="position:absolute;top:370px;left:0px;border: 0px solid red;height:550px;overflow:auto;">
+    style="display:none;position:absolute;top:350px;left:0px;border: 0px solid red;height:550px;overflow:auto;">
+    <h2>Options</h2>
     <table id="tblConfiguracoesDebug">
     
     </table>
@@ -42,6 +51,19 @@
     </table>   
 </div>
 
+<div id="divMoleculas" 
+    style="display:none;position:absolute;top:20px;left:1000px;border: 0px solid red;height:550px;overflow:auto;">
+    <h2>Detalhes Moléculas</h2>
+    <table id="tblMoleculas">
+        <tr><th>Molecula</th><th>Massa</th><th>Modulo</th><th>Colisoes Parede</th><th>Colisoes Moleculas</th><th>Ec</th></tr>
+    
+    </table>
+   
+   <table style="display:none;"> <!--tabela modelo -->
+    <tr ><td ><input type="checkbox" id="modeloCheckbox" onclick="setBackConfigCheckBox(this);"></td></tr>
+    <tr ><td ><input type="text" id="modeloTextbox" onchange="setBackConfigCheckBox(this);"></td></tr>
+    </table>   
+</div>
 
 
         <script src="main.js"></script>

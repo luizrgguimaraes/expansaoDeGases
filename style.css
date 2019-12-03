@@ -3,6 +3,7 @@
 body{
     background-image: linear-gradient(#05f, #000);
     background-image: linear-gradient(to right, #930 , #888);
+    font: 15px arial, sans-serif;
 }
 
 .btnPressed{

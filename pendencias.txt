@@ -1,19 +1,6 @@
-Variaveis Estocasticas - OK
-Raio de acordo com a massa - OK
-colisao de acordo com a distancia somente - OK
-calculo da colisao de acordo com a massa - OK
-movimento 3D - OK
-colisao 3D - OK
-checkbox de debug - OK
 captacao de dados:
-    modulo da velocidade de cada molecula
-    vetorx
-    vetory
-    vetorz
-    massa
-    colisoes na parede
-    colisoes com outras moleculas
     pressao
     temperatura
-historico de movimento
-colisao de raspao
+P5 3D
+
+
