@@ -161,11 +161,11 @@ function draw(flagBack) {try{
         GLOBALS.particulas.historico();
         
         GLOBALS.particulas.draws();
+        
+        GLOBALS.particulas.movers();
         var EcT = GLOBALS.particulas.atualizarTabela();
         GLOBALS.T = EcT/3/2*1.38*10**-23
 
-        GLOBALS.particulas.movers();
-        
         GLOBALS.particulas.colisoes();
         
         
