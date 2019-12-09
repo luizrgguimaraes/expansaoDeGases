@@ -1,8 +1,6 @@
 class Particulas{
     constructor(){
         this.array = Array();
-        this.tamanhoMinimoHistorico = 1;
-        criarLinhaMoleculaTotais();
     }
 
     add(obj){try{
@@ -45,10 +43,14 @@ class Particulas{
         var colisoesMoleculas = 0;
         var energiaCinetica = 0;
         for(var i=0; i < this.array.length;i++){
-            atualizarLinhaMolecula(this.array[i]);
-            colisoesParede += this.array[i].nColisoesParede;
-            colisoesMoleculas += this.array[i].nColisoesMoleculas;
-            energiaCinetica += this.array[i].getEnergiaCinetica();
+            if(this.array[i].idade>0){
+                atualizarLinhaMolecula(this.array[i]);
+                colisoesParede += this.array[i].nColisoesParede;
+                colisoesMoleculas += this.array[i].nColisoesMoleculas;
+                energiaCinetica += this.array[i].getEnergiaCinetica();
+            }else{
+                atualizarLinhaMolecula(this.array[i],true);
+            }
         }
         atualizarLinhaMoleculaTotais(colisoesParede,colisoesMoleculas,energiaCinetica);
         return energiaCinetica;        
@@ -57,29 +59,26 @@ class Particulas{
 
 
     historico(){try{
-        this.tamanhoMinimoHistorico = this.array[0].historico();
-        for(var i=1; i < this.array.length;i++){
-            var tamanho = this.array[i].historico();
-            if(tamanho<this.tamanhoMinimoHistorico){
-                this.tamanhoMinimoHistorico = tamanho;
-            }
+        if(GLOBALS.historicoCount<CFGMAXBACK)GLOBALS.historicoCount++;
+        
+        for(var i=0; i < this.array.length;i++){
+            this.array[i].historico();
         }
-        Interface.updateBack(this.tamanhoMinimoHistorico);
+        Interface.updateBack(GLOBALS.historicoCount);
     }catch(err){ alert('Erro Particulas.historico(): '+err);}}
 
     backs(){try{
-        
-        if(this.tamanhoMinimoHistorico){
-                var res = 0;
-                for(var i=0; i < this.array.length;i++){
-                    var tamanho = this.array[i].back(); 
-                    if(tamanho)res++;
-                }
-                this.tamanhoMinimoHistorico--;
-                Interface.updateBack(this.tamanhoMinimoHistorico);
-                if(res==this.array.length)return true;else return false;
-        }
-        return false;
+            GLOBALS.historicoCount--;
+            if(GLOBALS.historicoCount<0){
+                GLOBALS.historicoCount = 0;
+                return false;
+            }
+
+            for(var i=0; i < this.array.length;i++){
+                this.array[i].back(); 
+            }
+            Interface.updateBack(GLOBALS.historicoCount);
+            return true;            
     }catch(err){ alert('Erro Particulas.backs(): '+err);}}
 
     

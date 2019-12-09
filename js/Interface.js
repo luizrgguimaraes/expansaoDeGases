@@ -3,7 +3,89 @@ class Interface{
     static updateBack(value){
         $('btnBack').innerHTML = 'back('+value+')';
     } 
+
+    static limparTabelaMoleculas()
+    {try{
+        var table = $('tblMoleculas');
+        table.innerHTML = "";
+    
+    }catch(err){ alert('Erro Interface.limparTabelaMoleculas(): '+err); }}
+
+    static criarLinhaMoleculaTotais(){try{
+        var table = $('tblMoleculas');
+        
+        table.innerHTML = '<tr><th>Molecula</th><th>Massa</th><th>Modulo</th><th>Colisoes Parede</th><th>Colisoes Moleculas</th><th>Ec</th></tr>';
+        var tr = document.createElement('tr');
+        var td;
+        
+        
+        td = document.createElement('td'); td.className = 'tdConfig'; tr.appendChild(td);
+        td = document.createElement('td'); td.className = 'tdConfig'; tr.appendChild(td);
+        td = document.createElement('td'); td.className = 'tdConfig'; tr.appendChild(td);
+        
+        td = document.createElement('td'); td.innerHTML = 0; td.id = 'moleculaColisoesParedeTotal'; td.className = 'tdConfig'; tr.appendChild(td);
+        td = document.createElement('td'); td.innerHTML = 0; td.id = 'moleculaColisoesMoleculasTotal'; td.className = 'tdConfig'; tr.appendChild(td);
+        td = document.createElement('td'); td.innerHTML = 0; td.id = 'moleculaEnergiaCineticaTotal'; td.className = 'tdConfig'; tr.appendChild(td);
+        
+        table.appendChild(tr);
+    
+    }catch(err){ alert('Erro Interface.criarLinhaMoleculaTotais: '+err); }}
+
+    static atualizarIndicadores(pressao,tempo,temperatura){try{
+            fill([255,255,255]);
+            strokeWeight(1);
+            textSize(17);
+            text('Pressao: '+round2(pressao,10),CANVASH+CANVASH+LARGURADIVISORIA+10,100);    //CANVASH+CANVASH+LARGURADIVISORIA+CANVASH
+            text('Tempo: '+tempo,CANVASH+CANVASH+LARGURADIVISORIA+10,150);
+            text('Temperatura: '+temperatura,CANVASH+CANVASH+LARGURADIVISORIA+10,200);
+            
+    }catch(err){ alert('Erro Interface.atualizarIndicadores: '+err); }}
+
+    static desenharDivisorias(){try{
+            stroke(255,0,0); strokeWeight(LARGURADIVISORIA); line(CANVASH,0,CANVASH,CANVASW);
+            stroke(255,0,0); strokeWeight(LARGURADIVISORIA); line(CANVASH+LARGURADIVISORIA+CANVASH,0,CANVASH+LARGURADIVISORIA+CANVASH,CANVASW);
+    }catch(err){ alert('Erro Interface.desenharDivisorias: '+err); }}
+    
+    
+    static desenharMolecula(obj,deslocamentoX) {try{
+            fill(obj.cor);
+            strokeWeight(0);
+            if(deslocamentoX)ellipse(obj.pos.z+CANVASH+LARGURADIVISORIA,CANVASW-obj.pos.y,obj.raio*2,obj.raio*2);
+            else ellipse(obj.pos.x,CANVASW-obj.pos.y,obj.raio*2,obj.raio*2);
+    }catch(err){ alert('Erro Interface.desenharMolecula: '+err); }}
+
+    static desenharDirecao(posX,posY,vetorX,vetorY,raio,deslocamentoDimensao) {try{
+        
+        stroke(255);
+        strokeWeight(4);
+        posX+=deslocamentoDimensao;
+        var x = vetorX;
+        var y = vetorY;
+        var h = Math.sqrt(x**2 + y**2);
+        while(h<(raio*2)){
+            x*=1.1;
+            y*=1.1;
+            h = Math.sqrt(x**2 + y**2);            
+        }
+        line(posX,CANVASW-posY,posX+x,CANVASW-posY-y);
+    }catch(err){ alert('Erro Interface.desenharDirecao: '+err); }}
+    
+    
+    static desenharIdParticula(posX,posY,id,deslocamentoDimensao) {try{
+        
+        posX+=deslocamentoDimensao;
+        fill(255);
+        strokeWeight(0);
+        textSize(15);
+        text(id,posX-5,CANVASW-posY+5);
+
+    }catch(err){ alert('Erro Interface.desenharIdParticula: '+err); }}
+    
+
 }
+
+
+
 
 function setFrontConfigCheckBox(idconfig){try{
     
@@ -18,52 +100,7 @@ function setFrontConfigCheckBox(idconfig){try{
     
 }catch(err){ alert('Erro setFrontConfigCheckBox: '+err); }}
 
-function criarLinhaMoleculaTotais(){try{
-    var table = $('tblMoleculas');
-    var tr = document.createElement('tr');
-    var td;
-    
-    td = document.createElement('td');
-    //td.innerHTML = particula.id;
-    //td.id = 'moleculaId'+particula.id;
-    td.className = 'tdConfig';
-    tr.appendChild(td);
-    
-    td = document.createElement('td');
-    //td.innerHTML = particula.massa;
-    //td.id = 'moleculaMassa'+particula.id;
-    td.className = 'tdConfig';
-    tr.appendChild(td);
-    
-    td = document.createElement('td');
-    td.innerHTML = 0;
-    //td.id = 'moleculaModuloTotal';
-    //td.className = 'tdConfig';
-    tr.appendChild(td);
-    
-    td = document.createElement('td');
-    td.innerHTML = 0;
-    td.id = 'moleculaColisoesParedeTotal';
-    td.className = 'tdConfig';
-    tr.appendChild(td);
-    
-    td = document.createElement('td');
-    td.innerHTML = 0;
-    td.id = 'moleculaColisoesMoleculasTotal';
-    td.className = 'tdConfig';
-    tr.appendChild(td);
-    
-    td = document.createElement('td');
-    td.innerHTML = 0;
-    td.id = 'moleculaEnergiaCineticaTotal';
-    td.className = 'tdConfig';
-    tr.appendChild(td);
-    
-    
-    table.appendChild(tr);
-    
 
-}catch(err){ alert('Erro criarLinhaMoleculaTotais: '+err); }}
 
 function criarLinhaMolecula(particula){try{
     var table = $('tblMoleculas');
@@ -112,22 +149,25 @@ function criarLinhaMolecula(particula){try{
 
 }catch(err){ alert('Erro criarLinhaMolecula: '+err); }}
 
-function atualizarLinhaMolecula(particula){try{
+function atualizarLinhaMolecula(particula,apagar){try{
     var table = $('tblMoleculas');
     
     
     td = $('moleculaModulo'+particula.id);
     td.innerHTML = round2(particula.getModulo(),3);
+    if(apagar)td.innerHTML = '';
     
     td = $('moleculaColisoesParede'+particula.id);
     td.innerHTML = particula.nColisoesParede;
+    if(apagar)td.innerHTML = '';
     
     td = $('moleculaColisoesMoleculas'+particula.id);
     td.innerHTML = particula.nColisoesMoleculas;
+    if(apagar)td.innerHTML = '';
     
     td = $('moleculaEnergiaCinetica'+particula.id);
     td.innerHTML = round2(particula.getEnergiaCinetica(),3);
-    
+    if(apagar)td.innerHTML = '';
     
     
 }catch(err){ alert('Erro atualizarLinhaMolecula: '+err); }}

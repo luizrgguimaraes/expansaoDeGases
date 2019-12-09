@@ -1,27 +1,3 @@
-function setup() {
-  createCanvas(710, 400, WEBGL);
-}
-
-function draw() {
-  background(100);
-
-  noStroke();
-  fill(50);
-  push();
-  translate(-275, 175);
-  rotateY(1.25);
-  rotateX(-0.9);
-  box(100);
-  pop();
-
-  noFill();
-  stroke(255);
-  push();
-  translate(500, height * 0.35, -200);
-  sphere(300);
-  pop();
-}
-
 class Particula{
     constructor(id,anguloXY,anguloXZ,velocidade, massa){try{
         this.id = id;
@@ -41,6 +17,7 @@ class Particula{
         this.vetor = new Coordenadas(componenteX,componenteY,componenteZ);
         this.historicoPosicao = new Pilha();
         this.historicoVetor = new Pilha();
+        this.idade = 1;
         this.nColisoesParede = 0;
         this.nColisoesMoleculas = 0;
         criarLinhaMolecula(this);
@@ -50,110 +27,62 @@ class Particula{
         
     }catch(err){ alert('Erro new Particula(): '+err);}}
     
-    getEnergiaCinetica(){
-        return energiaCinetica(this.getModulo(),0,this.massa,0);
-    }
-    
     drawXY(){try{
-         //desenhar();return;
-//         fill(this.cor);
-//         strokeWeight(0);
+        if(this.idade<1)return;
         
-        desenhar(this);
-        //ellipse(this.pos.x,CANVASW-this.pos.y,this.raio*2,this.raio*2);
-         //sphere(this.pos.x,CANVASW-this.pos.y,this.raio*2,this.raio*2);
-            //fill(255);
-//           stroke(255);
-//             push();
-//             translate(0, 0, 200);
-//             sphere(10);
-//             pop();
-//           return;
-         
-        if(getConfig(CFGHABILITARNUMEROPARTICULA)){
-            fill(255);
-            strokeWeight(0);
-            textSize(15);
-            text(this.id,this.pos.x-5,CANVASW-this.pos.y+5);
-        }
-        
-        if(getConfig(CFGHABILITARDIRECAOPARTICULA)){
-                stroke(255);
-                strokeWeight(4);
-                var x = this.vetor.x;
-                var y = this.vetor.y;
-                var h = Math.sqrt(x**2 + y**2);
-                while(h<(this.raio*2)){
-                    x*=1.1;
-                    y*=1.1;
-                    h = Math.sqrt(x**2 + y**2);            
-                }
-                line(this.pos.x,CANVASW-this.pos.y,this.pos.x+x,CANVASW-this.pos.y-y);
-                
-        }
-        
-        
+        Interface.desenharMolecula(this);
+        if(getConfig(CFGHABILITARNUMEROPARTICULA)){ Interface.desenharIdParticula(this.pos.x,this.pos.y,this.id,0); }
+        if(getConfig(CFGHABILITARDIRECAOPARTICULA)){ desenharDirecao(this.pos.x,this.pos.y,this.vetor.x,this.vetor.y,this.raio,0); }
     }catch(err){ alert('Erro Particula.drawXY(): '+err);}}
     
     drawZY(){try{
-    
-        //fill(this.cor);
-        //strokeWeight(0);
-        
-        desenhar(this,LARGURADIVISORIA);
-        //ellipse(this.pos.z+CANVASH+LARGURADIVISORIA,CANVASW-this.pos.y,this.raio*2,this.raio*2);
-         
-        if(getConfig(CFGHABILITARNUMEROPARTICULA)){
-            fill(255);
-            strokeWeight(0);
-            textSize(15);
-            text(this.id,this.pos.z-5+CANVASH+LARGURADIVISORIA,CANVASW-this.pos.y+5);
-        }
-        
-        if(getConfig(CFGHABILITARDIRECAOPARTICULA)){
-                stroke(255);
-                strokeWeight(4);
-                
-                var z = this.vetor.z;
-                var y = this.vetor.y;
-                var h = Math.sqrt(z**2 + y**2);
-                while(h<(this.raio*2)){
-                    z*=1.1;
-                    y*=1.1;
-                    h = Math.sqrt(z**2 + y**2);            
-                }
-                line(this.pos.z+CANVASH+LARGURADIVISORIA,CANVASW-this.pos.y,this.pos.z+z+CANVASH+LARGURADIVISORIA,CANVASW-this.pos.y-y);
-        }
-        
-        
+        if(this.idade<1)return;
+        Interface.desenharMolecula(this,LARGURADIVISORIA);
+        if(getConfig(CFGHABILITARNUMEROPARTICULA)){Interface.desenharIdParticula(this.pos.z,this.pos.y,this.idade,CANVASH+LARGURADIVISORIA);}
+        if(getConfig(CFGHABILITARDIRECAOPARTICULA)){Interface.desenharDirecao(this.pos.z,this.pos.y,this.vetor.z,this.vetor.y,this.raio,CANVASH+LARGURADIVISORIA);}
     }catch(err){ alert('Erro Particula.drawZY(): '+err);}}
     
     historico(){try{
-        
+            if(this.idade<0){
+                this.idade++;
+                return;
+            }
             var clonePos = new Coordenadas();
             clonePos.clone(this.pos);
+            
             this.historicoPosicao.add(clonePos);
+            //Debug.erro(["add",this.id,this.pos.x,this.pos.y,this.historicoPosicao.topo,this.idade]);
             
             var cloneVet = new Coordenadas();
             cloneVet.clone(this.vetor);
+            
+            this.idade++;
+            
+//             alert(cloneVet.x+'/'+cloneVet.y);
             return this.historicoVetor.add(cloneVet);
     
     }catch(err){ alert('Erro Particula.historico(): '+err);}}
 
     back(){try{
+
+            
             var pos = this.historicoPosicao.get();
             var vet = this.historicoVetor.get();  
-            
             if(pos&&vet){
                 this.pos.clone(pos);
+                //Debug.erro(["get OK",this.id,this.pos.x,this.pos.y,this.historicoPosicao.topo,this.idade]);
                 this.vetor.clone(vet);
-                return true;
+            }else{
+                //Debug.erro(["NOT get",this.id,"null","null",this.historicoPosicao.topo,this.idade]);
             }
-            return false;
+            this.idade--;
+                
             
     }catch(err){ alert('Erro Particula.back(): '+err);}}
+    
 
     mover(){try{
+        
         var deslocamentoX = this.vetor.x * getConfig(CFGPASSO);
         var deslocamentoY = this.vetor.y * getConfig(CFGPASSO);
         var deslocamentoZ = this.vetor.z * getConfig(CFGPASSO);
@@ -196,13 +125,9 @@ class Particula{
     
     inverterDirecaoX(){
         this.vetor.x *=-1;
-        
-        
         GLOBALS.qtdTotalMomento += Math.abs(2*this.massa*this.vetor.x);
-         
     }
     inverterDirecaoY(){
-        
         this.vetor.y *=-1;
         GLOBALS.qtdTotalMomento += Math.abs(2*this.massa*this.vetor.y);
     }
@@ -292,6 +217,8 @@ class Particula{
     salvarPosicao(){try{this.posAnterior.clone(this.pos);}catch(err){ alert('Erro Particula.salvarPosicao(): '+err);}}
     reverterPosicao(){try{this.pos.clone(this.posAnterior);}catch(err){ alert('Erro Particula.reverterPosicao(): '+err);}}
     getModulo(){try{return calcModulo(this.vetor.x,this.vetor.y,this.vetor.z); }catch(err){ alert('Erro getModulo(): '+err);}}
+    getEnergiaCinetica(){ return energiaCinetica(this.getModulo(),0,this.massa,0); }
+
 }
 
 

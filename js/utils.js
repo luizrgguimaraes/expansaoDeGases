@@ -135,6 +135,15 @@ class Pilha{
         return result;                
     }catch(err){alert("Erro Pilha.get(): "+err)}}
     
+    getCurrent(){try{
+        var result = null;
+        if(this.count>0){
+            result = this.pilha[this.topo-1];
+        }
+
+        return result;                
+    }catch(err){alert("Erro Pilha.get(): "+err)}}
+    
     print(){try{
         Debug.erro(this.pilha);
         Debug.erro(["topo="+this.topo,"cabeca="+this.cabeca,"count="+this.count]);
