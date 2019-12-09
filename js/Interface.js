@@ -35,9 +35,10 @@ class Interface{
             fill([255,255,255]);
             strokeWeight(1);
             textSize(17);
-            text('Pressao: '+round2(pressao,10),CANVASH+CANVASH+LARGURADIVISORIA+10,100);    //CANVASH+CANVASH+LARGURADIVISORIA+CANVASH
-            text('Tempo: '+tempo,CANVASH+CANVASH+LARGURADIVISORIA+10,150);
-            text('Temperatura: '+temperatura,CANVASH+CANVASH+LARGURADIVISORIA+10,200);
+            text('Tempo: '+tempo,CANVASH+CANVASH+LARGURADIVISORIA+10,70);
+            text('Particulas: '+GLOBALS.idParticula+'/'+getConfig(CFGMAXPARTICULAS),CANVASH+CANVASH+LARGURADIVISORIA+10,120);
+            text('Pressao: '+round2(pressao,10),CANVASH+CANVASH+LARGURADIVISORIA+10,170);    //CANVASH+CANVASH+LARGURADIVISORIA+CANVASH
+            text('Temperatura: '+temperatura,CANVASH+CANVASH+LARGURADIVISORIA+10,220);
             
     }catch(err){ alert('Erro Interface.atualizarIndicadores: '+err); }}
 
@@ -150,6 +151,10 @@ function criarLinhaMolecula(particula){try{
 }catch(err){ alert('Erro criarLinhaMolecula: '+err); }}
 
 function atualizarLinhaMolecula(particula,apagar){try{
+    if($('divMoleculas').style.display == 'none'){
+        return;
+    }
+    
     var table = $('tblMoleculas');
     
     
