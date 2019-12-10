@@ -44,15 +44,10 @@ function choque(obj1,obj2,eixo){try{
     for(var m=0;m<=1;m++){
         for(var n=0;n<=1;n++){
             momentoFinal = round2(ma*vaf[m]+ mb*vbf[n],4);
-              
-//             var diferencaMomento = Math.abs(momentoFinal - momentoInicial);
-//             var diferencaVA = Math.abs(va0 - vaf[m]);
-//             var diferencaVB = Math.abs(vb0 - vbf[n]);
-//             var diferencaVAB = Math.abs(vaf[m] - vbf[n]); 
+    
             if(igual(momentoFinal,momentoInicial))result.push([vaf[m],vbf[n]]);
-        }//for n
-         
-    }//for m
+        }
+    }
     return result;
         
 }catch(err){ alert('Erro Fisica.choque(): '+err);}}
@@ -65,7 +60,3 @@ function igual(n1,n2){try{
     }
 
 }catch(err){ alert('Erro Fisica.igual(): '+err);}}
-    
-    
-    
-//alert('Ola Fisica');

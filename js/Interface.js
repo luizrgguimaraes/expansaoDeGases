@@ -354,5 +354,4 @@ function drawTabela(){try{
 
 }catch(err){ alert('Erro drawTabela: '+err); }}
 
-
-//alert('ola Interface');                                                
+                                              

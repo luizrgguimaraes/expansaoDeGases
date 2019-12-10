@@ -95,24 +95,18 @@ class Particula{
         
         var colisao = false;
         if(this.colisaoRecipienteX()) {
-            //Debug.print(["Colisao Fronteira X",this.id]);if(ENABLEPAUSECOLISAO)noLoop();
             this.inverterDirecaoX();
             colisao = true;
         }
         if(this.colisaoRecipienteY()) {
-            //Debug.print(["Colisao Fronteira Y",this.id]);if(ENABLEPAUSECOLISAO)noLoop();
-
             this.inverterDirecaoY();
             colisao = true;
         }
         if(this.colisaoRecipienteZ()) {
-            //Debug.print(["Colisao Fronteira Y",this.id]);if(ENABLEPAUSECOLISAO)noLoop();
-
             this.inverterDirecaoZ();
             colisao = true;
         }
 
-        
         if(colisao){
             this.reverterPosicao();
             this.mover();
@@ -188,7 +182,6 @@ class Particula{
 
         if(this.pos.get(eixo) <= obj.pos.get(eixo)){
             if((this.pos.get(eixo)+this.raio)>(obj.pos.get(eixo)-obj.raio)){
-                //Debug.erro(this.id+" sobre "+obj.id +"no eixo "+ eixo);noLoop();
                 return true;
             }
         }else{
