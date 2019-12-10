@@ -38,12 +38,12 @@ class Particula{
     drawZY(){try{
         if(this.idade<1)return;
         Interface.desenharMolecula(this,LARGURADIVISORIA);
-        if(getConfig(CFGHABILITARNUMEROPARTICULA)){Interface.desenharIdParticula(this.pos.z,this.pos.y,this.idade,CANVASH+LARGURADIVISORIA);}
+        if(getConfig(CFGHABILITARNUMEROPARTICULA)){Interface.desenharIdParticula(this.pos.z,this.pos.y,this.id,CANVASH+LARGURADIVISORIA);}
         if(getConfig(CFGHABILITARDIRECAOPARTICULA)){Interface.desenharDirecao(this.pos.z,this.pos.y,this.vetor.z,this.vetor.y,this.raio,CANVASH+LARGURADIVISORIA);}
     }catch(err){ alert('Erro Particula.drawZY(): '+err);}}
     
     historico(){try{
-            if(this.idade<0){
+            if(this.idade<1){
                 this.idade++;
                 return;
             }
@@ -51,7 +51,7 @@ class Particula{
             clonePos.clone(this.pos);
             
             this.historicoPosicao.add(clonePos);
-            //Debug.erro(["add",this.id,this.pos.x,this.pos.y,this.historicoPosicao.topo,this.idade]);
+            //Debug.erro(["add",this.id,this.pos.y,this.pos.z,this.historicoPosicao.topo,this.idade]);
             
             var cloneVet = new Coordenadas();
             cloneVet.clone(this.vetor);

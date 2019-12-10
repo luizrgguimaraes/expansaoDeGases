@@ -1,7 +1,7 @@
 
 
 
-const FRAMERATE = 60;
+const FRAMERATE = 10;
 const CANVASW = 300;
 const CANVASH = 300;
 const LARGURADIVISORIA = 5;
